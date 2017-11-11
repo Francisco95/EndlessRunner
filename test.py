@@ -1,19 +1,14 @@
-from .initializers import *
-from .Eje import *
-from tarea3.CC3501Utils import *
+from EndlessRunner.initializers import *
+from EndlessRunner.Eje import *
+from EndlessRunner.CC3501Utils import *
 import pygame.locals as lcl
 import numpy as np
-from .Stage import *
+from EndlessRunner.Stage import *
+from EndlessRunner.Personaje import Personaje
 import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # centrar pantalla
 
-def dibujar(master_pos, master_fi, listas):
-    glPushMatrix()
-    glTranslatef(master_pos.x, -150, master_pos.z)
-    glRotatef(master_fi, 0, 0, 1)  # Rotacion en torno a eje Z
-    glCallLists(listas)
-    glPopMatrix()
 
 def main():
     # inicializar
@@ -25,23 +20,20 @@ def main():
     clock = pygame.time.Clock()
 
     # camara
-    camPos = Vector(0.0, -0.1, -1000.0)
-    camAt = Vector(0, 40, 0)
+    camPos = Vector(0.0, -0.1, -100.0)
+    camAt = Vector(0, 0, 0)
 
     # luz
     light = GL_LIGHT0
     # l_position = Vector(1000.0, 0.0, 500.0)
-    l_position = Vector(0.0, 1000.0, 500.0)
+    l_position = Vector(0.0, 2.0, -130.0)
 
     # crear una luz coherente con su color base
     l_diffuse = [1.0, 1.0, 1.0, 1.0]
     l_ambient = [i / 5.0 for i in l_diffuse]
     l_specular = l_diffuse
 
-    l_position = [1.0, 1.0, 1.0, 0.0]
-    l_ambient = [0.0, 0.0, 0.0, 1.0]
-    l_diffuse = [1.0, 1.0, 1.0, 1.0]
-    l_specular = [1.0, 1.0, 1.0, 1.0]
+    l_position = [0.0, 1.0, -2.0, 0.0]
 
     # otros valores estandar
     l_constant_attenuation = 0.0
@@ -49,12 +41,15 @@ def main():
     l_quadratic_attenuation = 0.0
 
     l_spot_cutoff = 180.0
-    l_spot_direction = Vector(-1.0, 0.0, -0.5)  # direccion
+    l_spot_direction = Vector(0.0, -1.0, -0.5)  # direccion
     l_spot_exponent = 0.0
-    index = glGenLists(3)
     eje = Eje(400.0)  # R,G,B = X,Y,Z
-    master_pos = Vector(0, 0, 0)
+    master_pos = Vector(0, 0, camPos.z)
     s = Stage()
+    s.modify_pos(master_pos)
+    pj = Personaje()
+    print((s.dimensions[0] / 2) * np.tan(np.pi * 67.5 / 180))
+    pj.pos += Vector(0, 90, 300)
     # variables de tiempo
     fps = 30
     dt = 1.0 / fps
@@ -62,13 +57,14 @@ def main():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
 
-    gluPerspective(100, ancho / alto, 1, 3000)
+    gluPerspective(60, ancho / alto, 1, 3000)
 
     glMatrixMode(GL_MODELVIEW)
 
     run = True
     while run:
         desp = Vector(0, 0, 0)
+        delta_fi = 0
         ang = 0
         # manejo de eventos
         for event in pygame.event.get():
@@ -78,12 +74,21 @@ def main():
         # obtener teclas presionadas
         pressed = pygame.key.get_pressed()
         if pressed[lcl.K_w] or pressed[lcl.K_UP]:
-            desp = Vector(0, 0, 50)
+            desp = Vector(0, 0, 10)
+            delta_fi = 2
         if pressed[lcl.K_s] or pressed[lcl.K_DOWN]:
-            desp = Vector(0, 0, -50)
+            desp = Vector(0, 0, -10)
+            delta_fi = -2
         if pressed[lcl.K_SPACE]:
             ang = np.pi * 40 / 180
 
+        if pressed[lcl.K_d]:
+            camPos += Vector(0, 0, -1)
+
+        if pressed[lcl.K_a]:
+            camPos += Vector(0, 0, 1)
+
+        pj.rotation(delta_fi)
         s.modify_fi(ang)
         s.modify_pos(desp)
         s.update_config(camPos.z)
@@ -93,6 +98,7 @@ def main():
         # dibujar objetos
         eje.dibujar()
         s.dibujar()
+        pj.dibujar()
         # oct.dibujar(index, master_pos)
         # oct2.dibujar(index+1, master_pos + Vector(0, 0, oct.lenz/2))
         # oct2.dibujar(index+2, master_pos + Vector(0, 0, oct.lenz))

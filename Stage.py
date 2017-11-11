@@ -1,13 +1,13 @@
 import numpy as np
-from .MasterOctagon import Octagon
-from .CC3501Utils import Vector
+from EndlessRunner.MasterOctagon import Octagon
+from EndlessRunner.CC3501Utils import Vector
 from OpenGL.GL import *
 
 
 class Stage:
     def __init__(self, master_pos=Vector(0, 0, 0),
                  dimensions=(240, 20, 780), ang=0,
-                 number=5):
+                 number=6):
         self.number=number
         self.master_pos = master_pos
         self.dimensions = dimensions
@@ -40,7 +40,7 @@ class Stage:
             self.delete_octagons()
             print("a: ", len(self.octagons))
 
-        if len(self.octagons) < 5:
+        if len(self.octagons) < self.number:
             print("agrego 5 octagonos quedando:")
             self.more_octagons()
             print(self.octagons, "octagonos")
