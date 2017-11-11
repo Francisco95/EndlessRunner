@@ -13,9 +13,10 @@ class Octagon:
         self.lenz = dimensions[2]
         self.pos = pos
         self.z_pos = z_pos
-        self.crear(tipos=tipos)
+        self.tipos = self.get_tipos(tipos)
+        self.crear()
 
-    def crear(self, tipos=None):
+    def crear(self):
         """
         crea cada uno de los 8 paralelepipedos en su correspondiente posicion,
         trasladando un paralelepipedo maestro, usa atributo type para definir
@@ -23,8 +24,6 @@ class Octagon:
         o comodin (2)
         :return:
         """
-        if tipos is None:
-            tipos = [1, 1, 1, 1, 1, 1, 1, 1]
 
         self.lista = glGenLists(1)
         glNewList(self.lista, GL_COMPILE)
@@ -34,11 +33,11 @@ class Octagon:
         glBegin(GL_TRIANGLES)
 
         for i in range(8):
-            if tipos[i] == 1 or tipos[i] == 2:  # vacio
+            if self.tipos[i] == 1 or self.tipos[i] == 2:  # vacio
                 continue
-            elif tipos[i] == 0:  # blanco
+            elif self.tipos[i] == 0:  # blanco
                 glColor3f(1.0, 1.0, 1.0)
-            elif tipos[i] >= 3:  # amarillo
+            elif self.tipos[i] >= 3:  # amarillo
                 glColor3f(1.0, 1.0, 0.0)
 
             self.master_parallelepiped(i)
@@ -100,3 +99,9 @@ class Octagon:
         :return:
         """
         return Vector(0, -(self.lenx / 2) * np.tan(np.pi * 67.5 / 180), self.z_pos / 2)
+
+    @staticmethod
+    def get_tipos(tipos):
+        if tipos is None:
+            tipos = [1, 1, 1, 1, 1, 1, 1, 1]
+        return tipos

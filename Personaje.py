@@ -1,5 +1,3 @@
-import numpy as np
-from .MasterOctagon import Octagon
 from EndlessRunner.CC3501Utils import Vector, esfera
 from OpenGL.GL import *
 
