@@ -5,6 +5,7 @@ import pygame.locals as lcl
 import numpy as np
 from EndlessRunner.Stage import *
 from EndlessRunner.Personaje import Personaje
+from EndlessRunner.Interactions import Interactions
 import os
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # centrar pantalla
@@ -44,12 +45,17 @@ def main():
     l_spot_direction = Vector(0.0, -1.0, -0.5)  # direccion
     l_spot_exponent = 0.0
     eje = Eje(400.0)  # R,G,B = X,Y,Z
+
     master_pos = Vector(0, 0, camPos.z)
     s = Stage()
     s.modify_pos(master_pos)
     pj = Personaje()
     print((s.dimensions[0] / 2) * np.tan(np.pi * 67.5 / 180))
     pj.pos += Vector(0, 90, 300)
+
+    obj = Interactions(camPos, pj_pos=Vector(0, 90, 300), master_pos=Vector(0, 0, camPos.z))
+
+
     # variables de tiempo
     fps = 30
     dt = 1.0 / fps

@@ -12,17 +12,40 @@ class Stage:
         self.master_pos = master_pos
         self.dimensions = dimensions
         self.ang = ang
-        self.octagons = self.create_octagons(Vector(0, 0, 0))
-        print("parto con: ", len(self.octagons))
+        self.octagons = self.create_octagons(Vector(0, 0, 0),
+                                             first=True)
 
-    def create_octagons(self, offset):
+    def create_octagons(self, offset, first=False):
+
         octagons = []
-        for i in range(self.number):
-            oct = Octagon(pos=self.set_pos(i, offset),
+        if first:
+            print("first")
+            oct = Octagon(pos=self.set_pos(0, offset),
                           dimensions=self.dimensions,
                           ang=self.ang, z_pos=0,
-                          tipos=self.randon_types())
+                          tipos=[0, 0, 0, 0, 0, 0, 0, 0])
             octagons.append(oct)
+
+            oct = Octagon(pos=self.set_pos(1, offset),
+                          dimensions=self.dimensions,
+                          ang=self.ang, z_pos=0,
+                          tipos=[3, 3, 3, 3, 0, 3, 3, 3])
+            octagons.append(oct)
+
+            for i in range(self.number - 2):
+                oct = Octagon(pos=self.set_pos((i + 2), offset),
+                              dimensions=self.dimensions,
+                              ang=self.ang, z_pos=0,
+                              tipos=self.randon_types())
+                octagons.append(oct)
+
+        else:
+            for i in range(self.number):
+                oct = Octagon(pos=self.set_pos(i, offset),
+                              dimensions=self.dimensions,
+                              ang=self.ang, z_pos=0,
+                              tipos=self.randon_types())
+                octagons.append(oct)
 
         return octagons
 
@@ -35,17 +58,12 @@ class Stage:
 
     def update_config(self, cam_pos_z):
         if self.octagons[0].pos.z < cam_pos_z - 300:
-            print("borro octagono")
-            print("paso de:", len(self.octagons))
             self.delete_octagons()
-            print("a: ", len(self.octagons))
 
         if len(self.octagons) < self.number:
-            print("agrego 5 octagonos quedando:")
             self.more_octagons()
-            print(self.octagons, "octagonos")
 
-    def modify_pos(self, desp):
+    def modify_pos(self, desp: Vector):
         for oct in self.octagons:
             oct.pos += desp
 
