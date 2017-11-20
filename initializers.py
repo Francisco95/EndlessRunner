@@ -5,7 +5,7 @@ from OpenGL.GLU import *
 
 
 # funcion para inicializar pygame y opengl.
-def init(ancho, alto, titulo, color_fondo=[0, 0, 0, 0], far=2000, near=1):
+def init(ancho, alto, titulo, color_fondo=[0, 0, 0, 0], far=4000, near=1):
     # init pygame
     pygame.init()
     pygame.display.set_mode((ancho, alto), OPENGL | DOUBLEBUF)
@@ -19,7 +19,7 @@ def init(ancho, alto, titulo, color_fondo=[0, 0, 0, 0], far=2000, near=1):
 
     glLoadIdentity()
     # establecer tipo de proyeccion: perspectiva u ortogonal
-    gluPerspective(45, float(ancho) / float(alto), near, far)
+    gluPerspective(60, float(ancho) / float(alto), near, far)
     # glOrtho(-ancho, ancho, -alto, alto, near, far)
 
     glMatrixMode(GL_MODELVIEW)  # magia?

@@ -8,59 +8,50 @@ class Stage:
     def __init__(self, master_pos=Vector(0, 0, 0),
                  dimensions=(240, 20, 780), ang=0,
                  number=6):
-        self.number=number
+        self.number = number
         self.master_pos = master_pos
         self.dimensions = dimensions
         self.ang = ang
-        self.octagons = self.create_octagons(Vector(0, 0, 0),
-                                             first=True)
+        self.octagons = []
+        self.generate_first_octagons(Vector(0, 0, 0))
 
-    def create_octagons(self, offset, first=False):
+    def create_octagon(self, index_pos, offset, tipo):
+        oct = Octagon(pos=self.set_pos(index_pos, offset),
+                      dimensions=self.dimensions,
+                      ang=self.ang, z_pos=0,
+                      tipos=tipo)
+        return oct
 
-        octagons = []
-        if first:
-            print("first")
-            oct = Octagon(pos=self.set_pos(0, offset),
+    def generate_first_octagons(self, offset):
+
+        tipo0 = [0, 0, 0, 0, 0, 0, 0, 0]
+        tipo1 = [3, 3, 3, 3, 3, 3, 3, 3]
+        tipos = [tipo0, tipo1, self.randon_types(),
+                 self.randon_types(), self.randon_types(),
+                 self.randon_types()]
+
+        for i in range(self.number):
+            oct = Octagon(pos=self.set_pos(i, offset),
                           dimensions=self.dimensions,
                           ang=self.ang, z_pos=0,
-                          tipos=[0, 0, 0, 0, 0, 0, 0, 0])
-            octagons.append(oct)
-
-            oct = Octagon(pos=self.set_pos(1, offset),
-                          dimensions=self.dimensions,
-                          ang=self.ang, z_pos=0,
-                          tipos=[3, 3, 3, 3, 0, 3, 3, 3])
-            octagons.append(oct)
-
-            for i in range(self.number - 2):
-                oct = Octagon(pos=self.set_pos((i + 2), offset),
-                              dimensions=self.dimensions,
-                              ang=self.ang, z_pos=0,
-                              tipos=self.randon_types())
-                octagons.append(oct)
-
-        else:
-            for i in range(self.number):
-                oct = Octagon(pos=self.set_pos(i, offset),
-                              dimensions=self.dimensions,
-                              ang=self.ang, z_pos=0,
-                              tipos=self.randon_types())
-                octagons.append(oct)
-
-        return octagons
+                          tipos=tipos[i])
+            self.octagons.append(oct)
 
     def more_octagons(self):
-        self.octagons += self.create_octagons(self.octagons[-1].pos)
+        tipo_add = self.randon_types()
+        oct = self.create_octagon(1, self.octagons[-1].pos,
+                                  tipo_add)
+        self.octagons.append(oct)
 
     def delete_octagons(self):
         glDeleteLists(self.octagons[0].lista, 1)
         self.octagons.pop(0)
 
     def update_config(self, cam_pos_z):
-        if self.octagons[0].pos.z < cam_pos_z - 300:
+        if self.octagons[0].pos.z - cam_pos_z < - 450:
+            print("eliminacion a :", self.octagons[0].pos.z - cam_pos_z)
+        # if self.octagons[0].pos.z < cam_pos_z - 300:
             self.delete_octagons()
-
-        if len(self.octagons) < self.number:
             self.more_octagons()
 
     def modify_pos(self, desp: Vector):
@@ -68,9 +59,10 @@ class Stage:
             oct.pos += desp
 
     def modify_fi(self, ang):
-        self.ang += ang
+        self.ang = (self.ang + ang + 360) % 360
         for oct in self.octagons:
-            oct.master_fi += ang
+            oct.master_fi = self.ang
+        # print("nuevo master fi = ", self.octagons[0].master_fi)
 
     def dibujar(self):
         for oct in self.octagons:
@@ -82,4 +74,4 @@ class Stage:
                offset
 
     def randon_types(self):
-        return [int(i) for i in np.random.exponential(1, size=10)]
+        return [int(i) for i in np.random.exponential(1, size=8)]

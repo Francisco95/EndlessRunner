@@ -34,10 +34,11 @@ class Octagon:
 
         for i in range(8):
             if self.tipos[i] == 1 or self.tipos[i] == 2:  # vacio
+                glColor3f(0.0, 0.1, 0.0)
                 continue
             elif self.tipos[i] == 0:  # blanco
                 glColor3f(1.0, 1.0, 1.0)
-            elif self.tipos[i] >= 3:  # amarillo
+            else:  # amarillo
                 glColor3f(1.0, 1.0, 0.0)
 
             self.master_parallelepiped(i)
