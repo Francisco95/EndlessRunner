@@ -3,7 +3,7 @@ from EndlessRunner.Eje import *
 import pygame.locals as lcl
 from EndlessRunner.Stage import *
 from EndlessRunner.Interactions import Interactions
-from EndlessRunner.textos import Tiempo, InitScreen
+from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen
 from EndlessRunner.texto import draw_text_box
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -82,8 +82,9 @@ def main():
                        master_pos=Vector(0, 0, camPos.z))
     print("el numero de instants=", obj.instants)
     text = Tiempo(Vector(30, -26.5, 0))
-    text.game_time = 30
-    mt = InitScreen(ancho, alto)
+    text.game_time = 20
+    scr1 = InitScreen(ancho, alto)  # init screen
+    scr2 = DeathScreen(ancho, alto) # death screen
 
     # variables de tiempo
     fps = 30
@@ -96,14 +97,15 @@ def main():
     #
     # glMatrixMode(GL_MODELVIEW)
     run = True
-    pause = True
+    pause = False
     start = False
+    death = False
     while run:
         desp = Vector(0, 0, 0)
         delta_fi = -4
         ang = 0
         # manejo de eventos
-        if not pause:
+        if not pause and start:
             run = obj.fall()
 
         for event in pygame.event.get():
@@ -122,43 +124,69 @@ def main():
                 if event.key == lcl.K_e:
                     camPos += Vector(0, 0, 20)
 
-                # las acciones de caer, saltar o rotar bloquean a las otras acciones:
-                # if not obj.falling and not obj.jumping and not obj.spinning:
-                #     if event.key == lcl.K_SPACE:
-                #         # print("salto")
-                #         obj.jumping = True
-                #
-                #     if event.key == lcl.K_d:
-                #         obj.right = True
-                #         obj.left = False
-                #         obj.spinning = True
-                #         print("a la derecha tengo: "
-                #               "left={} y right={}".format(obj.left, obj.right))
-                #
-                #     if event.key == lcl.K_a and not obj.right:
-                #         obj.right = False
-                #         obj.left = True
-                #         obj.spinning = True
-                #         print("a la izquierda tengo: "
-                #               "left={} y right={}".format(obj.left, obj.right))
+                if event.key == lcl.K_RETURN and not death:
+                    start = True
+
+                if (event.key == lcl.K_UP or event.key == lcl.K_DOWN) \
+                        and not start and not death:
+                    scr1.mode = "normal" if scr1.mode is "endless" else "endless"
+
+                if event.key == lcl.K_UP and not start and death:
+                    if scr2.option is "retry":
+                        scr2.option = "exit"
+                    elif scr2.option is "change_mode":
+                        scr2.option = "retry"
+                    elif scr2.option is "exit":
+                        scr2.option = "change_mode"
+
+                if event.key == lcl.K_DOWN and not start and death:
+                    if scr2.option is "retry":
+                        scr2.option = "change_mode"
+                    elif scr2.option is "change_mode":
+                        scr2.option = "exit"
+                    elif scr2.option is "exit":
+                        scr2.option = "retry"
+
+                if event.key == lcl.K_RETURN and not start and death \
+                        and scr2.option is "retry":
+                    print("reseteo")
+                    obj = Interactions(camPos, pj_pos=Vector(0, 90, 300),
+                                       master_pos=Vector(0, 0, camPos.z))
+                    text.game_time = 20
+                    death = False
+                    start = True
+
+                if event.key == lcl.K_RETURN and not start and death \
+                        and scr2.option is "exit":
+                    run = False
+
+                if event.key == lcl.K_RETURN and not start and death \
+                        and scr2.option is "change_mode":
+                    start = False
+                    death = False
+                    obj = Interactions(camPos, pj_pos=Vector(0, 90, 300),
+                                       master_pos=Vector(0, 0, camPos.z))
+                    text.game_time = 20
 
         # obtener teclas presionadas
         pressed = pygame.key.get_pressed()
         # las acciones de caer, saltar o rotar bloquean a las otras acciones:
         if not obj.falling and not obj.jumping and not obj.spinning:
-            if pressed[lcl.K_SPACE]:
+            if pressed[lcl.K_SPACE] and not pressed[lcl.K_d] \
+                    and not pressed[lcl.K_a]:
                 obj.jumping = True
-            if pressed[lcl.K_d]:
+            if pressed[lcl.K_d] and not pressed[lcl.K_SPACE] \
+                    and not pressed[lcl.K_a]:
                 obj.right = True
                 obj.left = False
                 obj.spinning = True
-            if pressed[lcl.K_a] and not obj.right:
+            if pressed[lcl.K_a] and not pressed[lcl.K_SPACE] \
+                    and not pressed[lcl.K_d]:
                 obj.right = False
                 obj.left = True
                 obj.spinning = True
 
-
-        if not pause:  # si no esta pausado el juego
+        if not pause and start:  # si no esta pausado el juego
             obj.spin()
             obj.jump()
             obj.rotation(delta_fi)
@@ -174,15 +202,22 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # dibujar objetos
+        if obj.pos.y > 150:  # has muerto
+            start = False
+            death = True
+            scr2.main_info(text.session_time)
+            scr2.options()
+
         if start:
             eje.dibujar()
             obj.draw()
             texto = text.get_time_text(clock)
             text.dibujar(texto)
-        else:
-            mt.main_title()
-            mt.instructions()
-            mt.game_mode()
+
+        if not start and not death:
+            scr1.main_title()
+            scr1.instructions()
+            scr1.game_mode()
         # glColor3f(0, 0, 0)
         # drawText('hello world', ancho - 100, alto - 20, ancho, alto)
 

@@ -33,7 +33,8 @@ def draw_text_box(pos, width, text, color=(255, 255, 255, 0),
                  GL_RGBA, GL_UNSIGNED_BYTE, text_data)
 
 
-def drawText(value, x, y, windowHeight, windowWidth, withglut=True, width_text=100):
+def drawText(value, x, y, windowHeight, windowWidth, withglut=True, width_text=100,
+             color=(255, 255, 255, 0)):
     """
     Draw the given text at given 2D position in window.
     Funcion extraida de stackoverflow
@@ -68,7 +69,7 @@ def drawText(value, x, y, windowHeight, windowWidth, withglut=True, width_text=1
     if withglut:
         drawTextwithglut(value, x, y)
     else:
-        draw_text_box([x, y], width_text, value, color=(255, 255, 255, 0),
+        draw_text_box([x, y], width_text, value, color=color,
                       fondo=(0, 0, 0, 0))
     glPopMatrix()
     glMatrixMode(GL_PROJECTION)
@@ -91,6 +92,7 @@ class Tiempo:
         self.width_txt = width_text
         self.height_txt = height_text
         self.game_time = 0
+        self.session_time = 0
         self.crear()
 
     def crear(self):
@@ -120,8 +122,9 @@ class Tiempo:
                  self.height_wind)
 
     def get_time_text(self, clock):
-        delay = clock.get_time()
-        self.game_time = self.game_time - delay * 10 ** (-3)
+        delay = clock.get_time() * 10 ** (-3)
+        self.session_time += delay #mantiene registro del timpo de juego
+        self.game_time = self.game_time - delay
 
         if int(round(self.game_time, 2) * 100 - round(self.game_time, 1) * 100) == 0:
             text = str(round(self.game_time, 2)) + "0. secs"
@@ -136,6 +139,8 @@ class InitScreen:
     def __init__(self, width_window, height_window):
         self.width_wind = width_window
         self.height_wind = height_window
+        self.time = 0
+        self.mode = "endless"
 
     def main_title(self):
         drawText("ENDLESS RUNNER", self.width_wind / 2 - 85,
@@ -201,25 +206,112 @@ class InitScreen:
                  self.width_wind, self.height_wind, withglut=False,
                  width_text=self.width_wind / 8)
 
-    def game_mode(self, mode="endless"):
+    def normal_mode(self, offsetx, offsety, color=(255, 255, 255, 0)):
+        drawText("Normal Run",
+                 self.width_wind / 2 - 78 + offsetx,
+                 self.height_wind / 2 + 90 + offsety,
+                 self.width_wind, self.height_wind, withglut=False,
+                 width_text=self.width_wind / 8, color=color)
+
+    def endless_mode(self, offsetx, offsety, color=(255, 255, 255, 0)):
+        drawText("Endless Run",
+                 self.width_wind / 2 - 74 + offsetx,
+                 self.height_wind / 2 + 40 + offsety,
+                 self.width_wind, self.height_wind, withglut=False,
+                 width_text=self.width_wind / 8, color=color)
+
+    def normal_mode_disabled(self, offsetx, offsety,color=(255, 255, 255, 0)):
+        drawText("Normal Run (disabled)",
+                 self.width_wind / 2 - 48 + offsetx,
+                 self.height_wind / 2 + 90 + offsety,
+                 self.width_wind, self.height_wind, withglut=False,
+                 width_text=self.width_wind / 8, color=color)
+
+    def game_mode(self):
         offsety = - 100
         offsetx = - 200
-
+        delay = 30
+        self.time = (self.time + 1 + delay) % delay
         drawText("Game Mode:",
                  self.width_wind / 2 - 85 + offsetx,
                  self.height_wind / 2 + 140 + offsety,
                  self.width_wind, self.height_wind, withglut=False,
                  width_text=self.width_wind / 6)
-        if mode is "normal":
-            drawText("Normal Run",
-                    self.width_wind / 2 - 78 + offsetx,
-                    self.height_wind / 2 + 90 + offsety,
-                    self.width_wind, self.height_wind, withglut=False,
-                    width_text=self.width_wind / 8)
+        if self.mode is "normal":
+            if 0 < self.time < delay - 10:
+                # self.normal_mode(offsetx, offsety, color=(255, 0, 0, 0))
+                self.normal_mode_disabled(offsetx, offsety, color=(255, 0, 0, 0))
+            self.endless_mode(offsetx, offsety)
 
-        if mode is "endless":
-            drawText("Endless Run",
-                    self.width_wind / 2 - 74 + offsetx,
-                    self.height_wind / 2 + 40 + offsety,
-                    self.width_wind, self.height_wind, withglut=False,
-                    width_text=self.width_wind / 8)
+        if self.mode is "endless":
+            if 0 < self.time < delay - 10:
+                self.endless_mode(offsetx, offsety, color=(255, 0, 0, 0))
+            # self.normal_mode(offsetx, offsety)
+            self.normal_mode_disabled(offsetx, offsety)
+
+
+class DeathScreen:
+    def __init__(self, width_window, height_window):
+        self.width_wind = width_window
+        self.height_wind = height_window
+        self.time = 0
+        self.mode = "endless"
+        self.option = "retry"
+        self.time = 0
+        self.best = 0
+
+    def main_info(self, progression):
+        offsetx = 200
+        offsety = -50
+        if self.mode is "endless":
+            drawText("GAME OVER", self.width_wind / 2 - 115,
+                     self.height_wind / 2 + 110,
+                     self.width_wind, self.height_wind, withglut=False,
+                     width_text=self.width_wind / 4)
+            ur_time = "YOUR TIME: {} secs.".format(round(progression, 2))
+            if round(progression, 2) > self.best:
+                self.best = round(progression, 2)
+            best_time = "BEST TIME: {} secs.".format(self.best)
+            drawText(ur_time, self.width_wind / 2 - 55 - offsetx,
+                     self.height_wind / 2 + 110 + offsety,
+                     self.width_wind, self.height_wind, withglut=False,
+                     width_text=self.width_wind / 10)
+
+            drawText(best_time, self.width_wind / 2 - 55 + offsetx,
+                     self.height_wind / 2 + 110 + offsety,
+                     self.width_wind, self.height_wind, withglut=False,
+                     width_text=self.width_wind / 10)
+
+    def options(self):
+        offsetx = 0
+        offsety = -150
+        delay = 30
+        self.time = (self.time + 1 + delay) % delay
+
+        if self.option is "retry":
+            if 0 < self.time < delay - 10:
+                self.draw("RETRY", -55 + offsetx, 80 + offsety, 10, color=(255, 0,
+                                                                           0, 0))
+            self.draw("CHANGE MODE", -55 + offsetx, 40 + offsety, 10)
+            self.draw("EXIT", -55 + offsetx, offsety, 10)
+
+        if self.option is "change_mode":
+            if 0 < self.time < delay - 10:
+                self.draw("CHANGE MODE", -55 + offsetx,
+                          40 + offsety, 10, color=(255, 0, 0, 0))
+            self.draw("RETRY", -55 + offsetx, 80 + offsety, 10)
+            self.draw("EXIT", -55 + offsetx, offsety, 10)
+
+        if self.option is "exit":
+            if 0 < self.time < delay - 10:
+                self.draw("EXIT", -55 + offsetx, offsety, 10, color=(255, 0, 0, 0))
+            self.draw("CHANGE MODE", -55 + offsetx, 40 + offsety, 10)
+            self.draw("RETRY", -55 + offsetx, 80 + offsety, 10)
+
+
+    def draw(self, text, offsetx, offsety, ratio_width, withglut=False,
+             color=(255, 255, 255, 0)):
+        drawText(text, self.width_wind / 2 + offsetx,
+                 self.height_wind / 2 + offsety,
+                 self.width_wind, self.height_wind, withglut=withglut,
+                 width_text=self.width_wind / ratio_width, color=color)
