@@ -1,9 +1,9 @@
 # EndlessRunner
-TAREA n°3 CC3501: Modelación y Computación Gráfica para Ingenieros
-Juego creado como proyecto/tarea.
+## TAREA n°3 CC3501: Modelación y Computación Gráfica para Ingenieros
+### Juego creado como proyecto/tarea.
 
-:::: Contenido :::::
-Las componentes de este juego son:
+####:::: Contenido :::::
+##### Las componentes de este juego son:
 - una carpeta "sounds" que almacena la musica y efectos de sonidos utilizados
 - los siguientes scripts bases para ejecutar el juego:
     -CC3501Utils.py : contiene funciones con figuras basicas en 3D
@@ -21,7 +21,7 @@ Las componentes de este juego son:
  - un archivo Presentacion.pdf el cual presenta al juego y como fue su desarrollo
  - un demo.mp3 que consiste de un video de aprox. 1 min de duracion mostrando el juego, SIN SONIDO.
  
-:::::: Ejecucion ::::::
+#### :::::: Ejecucion ::::::
 
 Para ejecutar el juego basta con correr game.py en python, JUEGO REALIZADO EN PYTHON 3.6!
 
