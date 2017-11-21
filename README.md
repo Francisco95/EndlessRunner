@@ -2,7 +2,7 @@
 ## TAREA n°3 CC3501: Modelación y Computación Gráfica para Ingenieros
 ### Juego creado como proyecto/tarea.
 
-####:::: Contenido :::::
+#### :::: Contenido :::::
 ##### Las componentes de este juego son:
 - una carpeta "sounds" que almacena la musica y efectos de sonidos utilizados
 - los siguientes scripts bases para ejecutar el juego:
