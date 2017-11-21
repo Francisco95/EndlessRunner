@@ -2,6 +2,7 @@ import numpy as np
 from EndlessRunner.MasterOctagon import Octagon
 from EndlessRunner.CC3501Utils import Vector
 from OpenGL.GL import *
+from EndlessRunner.map1 import map1
 
 
 class Stage:
@@ -13,6 +14,8 @@ class Stage:
         self.dimensions = dimensions
         self.ang = ang
         self.octagons = []
+        self.pregenerated = False
+        self.preg_counter = 0
         self.generate_first_octagons(Vector(0, 0, 0))
 
     def create_octagon(self, index_pos, offset, tipo):
@@ -24,8 +27,16 @@ class Stage:
 
     def generate_first_octagons(self, offset):
 
-        tipo0 = [0, 0, 0, 0, 0, 0, 0, 0]
-        tipo1 = [3, 3, 3, 3, 3, 3, 3, 3]
+        if self.pregenerated:
+            tipo0 = map1[self.preg_counter]
+            self.preg_counter += 1
+            tipo1 = map1[self.preg_counter]
+            self.preg_counter += 1
+
+        else:
+            tipo0 = [0, 0, 0, 0, 0, 0, 0, 0]
+            tipo1 = [3, 3, 3, 3, 3, 3, 3, 3]
+
         tipos = [tipo0, tipo1, self.randon_types(),
                  self.randon_types(), self.randon_types(),
                  self.randon_types()]
@@ -74,4 +85,11 @@ class Stage:
                offset
 
     def randon_types(self):
-        return [int(i) for i in np.random.exponential(1, size=8)]
+
+        if not self.pregenerated:
+            tipos = [int(i) for i in np.random.exponential(1, size=8)]
+        else:
+            tipos = map1[self.preg_counter]
+            self.preg_counter += 1
+
+        return tipos

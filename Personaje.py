@@ -9,7 +9,6 @@ import numpy as np
 class Personaje:
     def __init__(self, pos=Vector(0, 0, 0), tipo="simple",
                  fi=0):
-        print("inicia personaje")
         self.pos = pos
         self.tipo = tipo
         self.lista = 0

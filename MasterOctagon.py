@@ -38,8 +38,14 @@ class Octagon:
                 continue
             elif self.tipos[i] == 0:  # blanco
                 glColor3f(1.0, 1.0, 1.0)
-            else:  # amarillo
+            elif self.tipos[i] == 3:  # amarillos, otrogan mas tiempo de vida
                 glColor3f(1.0, 1.0, 0.0)
+
+            elif self.tipos[i] == 4:  # rojos, restan tiempo de vida
+                glColor3f(1.0, 0.0, 0.0)
+
+            else: # lo demas es vacio
+                continue
 
             self.master_parallelepiped(i)
 

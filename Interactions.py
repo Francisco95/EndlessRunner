@@ -18,7 +18,6 @@ class Interactions(Personaje, Stage):
                        number=number)
         self.pj_pos = pj_pos
         self.pos += pj_pos
-        print("posicion del pj: ", self.pos.y)
         Stage.modify_pos(self, self.master_pos)
         self.falling = False  # esta cayendo, permite bloquear otras acciones
         self.jumping = False  # esta saltando, permite bloquear otras acciones
@@ -28,13 +27,15 @@ class Interactions(Personaje, Stage):
         self.speed = speed  # velocidad de desplazamiento
         self.speed_jump = speed_jump  # velocidad del salto
         self.height_j = 70  # altura del salto
+        self.distance = self.dimensions[2] + 40
         self.instants = self.get_number_of_instants()
+        self.accel_time = 0  # dara cuenta de los instantes donde acelera
         self.instant = 1  # define un contador de instantes
         self.gravity = self.get_gravity()
         self.time_jump = self.time()
 
     def get_number_of_instants(self):
-        return round((self.dimensions[2] + 40) / self.speed)
+        return round(self.distance / self.speed)
 
     def get_gravity(self):
         """
@@ -200,18 +201,13 @@ class Interactions(Personaje, Stage):
             self.right = False
             self.left = False
 
-    def add_time_conditions(self, oct):
+    def time_conditions(self, oct):
         """
                 El movimiento se detiene y el personaje empieza a caer,
                 se pierde la partida, el personaje no puede saltar
                 :return:
                 """
-        aux_cond_type = False
         aux_cond_pos = False
-        lower_type = self.get_type_lower_block(oct)
-        if lower_type >= 3:
-            # print("lower tipe es comodin")
-            aux_cond_type = True
 
         xfloor, yfloor, zfloor = oct.set_displacement_pos().cartesianas()
         if abs(oct.pos.z - self.pos.z) < oct.lenz / 2 + 150:
@@ -222,7 +218,7 @@ class Interactions(Personaje, Stage):
                 aux_cond_pos = True
 
         return [not self.jumping, not self.spinning, not self.falling,
-                aux_cond_type, aux_cond_pos]
+                aux_cond_pos]
 
     def add_time(self):
         oct = self.octagons[1]
@@ -230,11 +226,20 @@ class Interactions(Personaje, Stage):
         # print("add_time jumping: ", self.jumping)
         # print("add_time spinning: ", self.spinning)
         # print("add_time falling: ", self.falling)
-        if all(self.add_time_conditions(oct)):
-            print("agrego tiempo")
+        lower_type = self.get_type_lower_block(oct)
+        if all(self.time_conditions(oct)) and lower_type == 3:
             get_more_time = True
 
         return get_more_time
+
+    def rest_time(self):
+        oct = self.octagons[1]
+        lower_type = self.get_type_lower_block(oct)
+        get_minus_time = False
+        if all(self.time_conditions(oct)) and lower_type == 4:
+            get_minus_time = True
+
+        return get_minus_time
 
     def discrete_rotation(self):
         full_ang = 45 / int(self.instants / 2)
@@ -253,6 +258,14 @@ class Interactions(Personaje, Stage):
 
     def mov_sceneario(self):
         return Stage.modify_pos(self, Vector(0, 0, -self.speed))
+
+    def accelerate(self):
+        delay = 120
+        self.accel_time = (self.accel_time + 1 + delay) % delay
+        if self.accel_time == delay - 1:
+            self.speed += 10  # aumenta la velocidad
+            # self.distance += 5  # en concordancia, aumenta la longitud del salto
+            # self.instants = self.get_number_of_instants()
 
     def draw(self):
         Stage.dibujar(self)

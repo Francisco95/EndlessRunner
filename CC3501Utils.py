@@ -236,13 +236,13 @@ def esfera(radio, pos=Vector(0, 0, 0)):
     """
     @ esfera: Genera los vertices para una esfera centrada en pos.
     """
-    dtheta = 2 * pi / 20.0  # definicion
-    dfi = 2 * pi / 20.0
+    dtheta = 2 * pi / 32.0  # definicion
+    dfi = 2 * pi / 32.0
     theta = 0  # angulo que cae
     fi = 0  # angulo polar
 
-    while theta <= pi - dtheta:
-        while fi <= 2 * pi - dfi:
+    while theta <= pi - dtheta + 0.01:
+        while fi <= 2 * pi - dfi + 0.01:
             p1 = sumar(VectorEsfericas(radio, fi, theta), pos)
             p2 = sumar(VectorEsfericas(radio, fi + dfi, theta), pos)
             p3 = sumar(VectorEsfericas(radio, fi + dfi, theta + dtheta), pos)

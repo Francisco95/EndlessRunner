@@ -15,7 +15,7 @@ def drawTextwithglut(value, x, y):
         if character == '\n':
             glRasterPos2i(x, y - (lines * 18))
         else:
-            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ord(character))
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ord(character))
 
 def draw_text_box(pos, width, text, color=(255, 255, 255, 0),
                   fondo=(255, 0, 0, 0)):
@@ -83,7 +83,7 @@ def drawText(value, x, y, windowHeight, windowWidth, withglut=True, width_text=1
 class Tiempo:
     def __init__(self, pos: Vector, tiempo=0,
                  width_window=800, height_window=600,
-                 width_text=134, height_text=27):
+                 width_text=144, height_text=32):
         self.pos = pos
         self.tiempo = tiempo
         self.lista = 0
@@ -101,10 +101,10 @@ class Tiempo:
         glEnable(GL_COLOR_MATERIAL)
         glBegin(GL_TRIANGLES)
         glColor4f(0.0, 0.0, 0.0, 0.7)
-        p1 = self.pos + Vector(-19, -3.5, 0)
-        p2 = self.pos + Vector(19, -3.5, 0)
-        p3 = self.pos + Vector(19, 3.5, 0)
-        p4 = self.pos + Vector(-19, 3.5, 0)
+        p1 = self.pos + Vector(-21, -4, 0)
+        p2 = self.pos + Vector(21, -4, 0)
+        p3 = self.pos + Vector(21, 4, 0)
+        p4 = self.pos + Vector(-21, 4, 0)
         cuadrilatero(p1, p2, p3, p4)
         glEnd()
         glEndList()
@@ -227,12 +227,19 @@ class InitScreen:
                  self.width_wind, self.height_wind, withglut=False,
                  width_text=self.width_wind / 8, color=color)
 
+    def draw(self, text, offsetx, offsety, ratio_width, withglut=False,
+             color=(255, 255, 255, 0)):
+        drawText(text, self.width_wind / 2 + offsetx,
+                 self.height_wind / 2 + offsety,
+                 self.width_wind, self.height_wind, withglut=withglut,
+                 width_text=self.width_wind / ratio_width, color=color)
+
     def game_mode(self):
         offsety = - 100
         offsetx = - 200
         delay = 30
         self.time = (self.time + 1 + delay) % delay
-        drawText("Game Mode:",
+        drawText("MENU:",
                  self.width_wind / 2 - 85 + offsetx,
                  self.height_wind / 2 + 140 + offsety,
                  self.width_wind, self.height_wind, withglut=False,
@@ -242,12 +249,23 @@ class InitScreen:
                 # self.normal_mode(offsetx, offsety, color=(255, 0, 0, 0))
                 self.normal_mode_disabled(offsetx, offsety, color=(255, 0, 0, 0))
             self.endless_mode(offsetx, offsety)
+            self.draw("About game", -78 + offsetx, -10 + offsety, 8)
 
         if self.mode is "endless":
             if 0 < self.time < delay - 10:
                 self.endless_mode(offsetx, offsety, color=(255, 0, 0, 0))
             # self.normal_mode(offsetx, offsety)
             self.normal_mode_disabled(offsetx, offsety)
+            self.draw("About game", -78 + offsetx, -10 + offsety, 8)
+
+        if self.mode is "about_game":
+            if 0 < self.time < delay - 10:
+                self.draw("About game", -78 + offsetx, -10 + offsety,
+                          8, color=(255, 0, 0, 0))
+            # self.normal_mode(offsetx, offsety)
+            self.normal_mode_disabled(offsetx, offsety)
+            self.endless_mode(offsetx, offsety)
+
 
 
 class DeathScreen:
