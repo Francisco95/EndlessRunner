@@ -1,18 +1,8 @@
 from EndlessRunner.initializers import *
 from EndlessRunner.Eje import *
-import pygame.locals as lcl
-from EndlessRunner.Stage import *
-from EndlessRunner.Interactions import Interactions
-from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen, VictoryScree
-from EndlessRunner.texto import draw_text_box
-from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-from PIL import Image as Image
-from EndlessRunner.CC3501Utils import cuadrilatero
-from EndlessRunner.map1 import map1
 import os
-import pygame as pg
 from EndlessRunner.key_interactions import *
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # centrar pantalla

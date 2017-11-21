@@ -1,16 +1,7 @@
-from EndlessRunner.initializers import *
-from EndlessRunner.Eje import *
 import pygame.locals as lcl
 from EndlessRunner.Stage import *
 from EndlessRunner.Interactions import Interactions
 from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen, VictoryScree
-from EndlessRunner.texto import draw_text_box
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
-from PIL import Image as Image
-from EndlessRunner.CC3501Utils import cuadrilatero
-import os
 import pygame as pg
 
 
