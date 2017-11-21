@@ -3,53 +3,26 @@ from EndlessRunner.Eje import *
 import pygame.locals as lcl
 from EndlessRunner.Stage import *
 from EndlessRunner.Interactions import Interactions
-from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen
+from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen, VictoryScree
 from EndlessRunner.texto import draw_text_box
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from PIL import Image as Image
 from EndlessRunner.CC3501Utils import cuadrilatero
+from EndlessRunner.map1 import map1
 import os
+import pygame as pg
+from EndlessRunner.key_interactions import *
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # centrar pantalla
 
-
-def drawText(value, x, y, windowHeight, windowWidth, step=18):
-    """Draw the given text at given 2D position in window
-    """
-    glMatrixMode(GL_PROJECTION)
-    # For some reason the GL_PROJECTION_MATRIX is overflowing with a single push!
-    # glPushMatrix()
-    matrix = glGetDouble(GL_PROJECTION_MATRIX)
-
-    glLoadIdentity()
-    glOrtho(0.0, windowHeight or 32, 0.0, windowWidth or 32, -1.0, 1.0)
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-    glRasterPos2i(x, y)
-    lines = 0
-    ##	import pdb
-    ##	pdb.set_trace()
-    for character in value:
-        if character == '\n':
-            glRasterPos2i(x, y - (lines * 18))
-        else:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(character));
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION)
-    # For some reason the GL_PROJECTION_MATRIX is overflowing with a single push!
-    # glPopMatrix();
-    glLoadMatrixd(matrix)  # should have un-decorated alias for this...
-
-    glMatrixMode(GL_MODELVIEW)
 
 def main():
     # inicializar
     ancho = 800
     alto = 600
-    init(ancho, alto, "ejemplo aux")  # inicializa pygame, opengl
+    init(ancho, alto, "ENDLESS RUNNER")  # inicializa pygame, opengl
     glutInit()  # inicializa glut
 
     # crear objetos
@@ -80,124 +53,94 @@ def main():
     eje = Eje(400.0)  # R,G,B = X,Y,Z
     obj = Interactions(camPos, pj_pos=Vector(0, 90, 300),
                        master_pos=Vector(0, 0, camPos.z))
-    print("el numero de instants=", obj.instants)
     text = Tiempo(Vector(30, -26.5, 0))
     text.game_time = 20
+    text.crear()
     scr1 = InitScreen(ancho, alto)  # init screen
     scr2 = DeathScreen(ancho, alto) # death screen
+    scr3 = VictoryScree(ancho, alto)  # victory screen
 
     # variables de tiempo
     fps = 30
     dt = 1.0 / fps
 
-    # glMatrixMode(GL_PROJECTION)
-    # glLoadIdentity()
-    #
-    # gluPerspective(100, ancho / alto, 1, 3000)
-    #
-    # glMatrixMode(GL_MODELVIEW)
+    pg.mixer.init(11025)
+    pg.mixer.music.load("sounds/Electrical-of-cosmic.mp3")
+    pg.mixer.music.set_volume(0.4)
+    pg.mixer.music.play(-1)
+    menu1 = pg.mixer.Sound("sounds/sfx_menu_move3.wav")
+    menu2 = pg.mixer.Sound("sounds/sfx_menu_select2.wav")
+    long_jump = pg.mixer.Sound("sounds/sfx_movement_jump16.wav")
+    short_jump = pg.mixer.Sound("sounds/sfx_movement_jump8.wav")
+    die = pg.mixer.Sound("sounds/sfx_sounds_falling7.wav")
+    win = pg.mixer.Sound("sounds/Ta-Da.wav")
+    pause = pg.mixer.Sound("sounds/sfx_sounds_pause1_in.wav")
+    more_time = pg.mixer.Sound("sounds/sfx_movement_portal1.wav")
+    less_time = pg.mixer.Sound("sounds/sfx_movement_portal3.wav")
+    sounds = [menu1, menu2, long_jump, short_jump, win, pause,
+              more_time, less_time]
     run = True
     pause = False
     start = False
     death = False
+    win = False
     while run:
-        desp = Vector(0, 0, 0)
         delta_fi = -4
-        ang = 0
+
         # manejo de eventos
         if not pause and start:
             run = obj.fall()
 
         for event in pygame.event.get():
-            if event.type == lcl.QUIT:
-                run = False
-
-            if event.type == lcl.KEYDOWN:
-                if event.key == lcl.K_p:
-                    print("pauso")
-                    pause = True if not pause else False
-
-                # acciones de control, recordar quitarlas!!
-                if event.key == lcl.K_q:
-                    camPos += Vector(0, 0, -20)
-
-                if event.key == lcl.K_e:
-                    camPos += Vector(0, 0, 20)
-
-                if event.key == lcl.K_RETURN and not death:
-                    start = True
-
-                if (event.key == lcl.K_UP or event.key == lcl.K_DOWN) \
-                        and not start and not death:
-                    scr1.mode = "normal" if scr1.mode is "endless" else "endless"
-
-                if event.key == lcl.K_UP and not start and death:
-                    if scr2.option is "retry":
-                        scr2.option = "exit"
-                    elif scr2.option is "change_mode":
-                        scr2.option = "retry"
-                    elif scr2.option is "exit":
-                        scr2.option = "change_mode"
-
-                if event.key == lcl.K_DOWN and not start and death:
-                    if scr2.option is "retry":
-                        scr2.option = "change_mode"
-                    elif scr2.option is "change_mode":
-                        scr2.option = "exit"
-                    elif scr2.option is "exit":
-                        scr2.option = "retry"
-
-                if event.key == lcl.K_RETURN and not start and death \
-                        and scr2.option is "retry":
-                    print("reseteo")
-                    obj = Interactions(camPos, pj_pos=Vector(0, 90, 300),
-                                       master_pos=Vector(0, 0, camPos.z))
-                    text.game_time = 20
-                    death = False
-                    start = True
-
-                if event.key == lcl.K_RETURN and not start and death \
-                        and scr2.option is "exit":
-                    run = False
-
-                if event.key == lcl.K_RETURN and not start and death \
-                        and scr2.option is "change_mode":
-                    start = False
-                    death = False
-                    obj = Interactions(camPos, pj_pos=Vector(0, 90, 300),
-                                       master_pos=Vector(0, 0, camPos.z))
-                    text.game_time = 20
+            obj, scr1, scr2, scr3, text, list_return = event_press(event, camPos,
+                                                                   scr1, scr2,
+                                                                   scr3, obj, text,
+                                                                   pause, death,
+                                                                   start, run, win,
+                                                                   sounds)
+        start = list_return[0]
+        death = list_return[1]
+        run = list_return[2]
+        pause = list_return[3]
+        win = list_return[4]
 
         # obtener teclas presionadas
         pressed = pygame.key.get_pressed()
-        # las acciones de caer, saltar o rotar bloquean a las otras acciones:
-        if not obj.falling and not obj.jumping and not obj.spinning:
-            if pressed[lcl.K_SPACE] and not pressed[lcl.K_d] \
-                    and not pressed[lcl.K_a]:
-                obj.jumping = True
-            if pressed[lcl.K_d] and not pressed[lcl.K_SPACE] \
-                    and not pressed[lcl.K_a]:
-                obj.right = True
-                obj.left = False
-                obj.spinning = True
-            if pressed[lcl.K_a] and not pressed[lcl.K_SPACE] \
-                    and not pressed[lcl.K_d]:
-                obj.right = False
-                obj.left = True
-                obj.spinning = True
+        obj = pressed_keys(pressed, obj, sounds)
+        if not pause:
+            if start:
+                if not win:
+                    if not death and obj.preg_counter < len(map1):
+                        print(obj.preg_counter, len(map1))
+                        obj.spin()
+                        obj.jump()
+                        obj.rotation(delta_fi)
+                        obj.modify_pos(Vector(0, 0, -obj.speed))
+                        obj.update_config(camPos.z)
+                        obj.accelerate()
+                        if obj.add_time():
+                            obj.lost_soud = True
+                            text.game_time += 1 / 2
+                            if obj.add_sound:
+                                more_time.play(0)
+                                obj.add_sound = False
 
-        if not pause and start:  # si no esta pausado el juego
-            obj.spin()
-            obj.jump()
-            obj.rotation(delta_fi)
-            obj.modify_pos(Vector(0, 0, -obj.speed))
-            obj.update_config(camPos.z)
-            if obj.add_time():
-                print("agrego tiempo")
-                print("antes tenia: ", text.game_time, " segundos")
-                text.game_time += 1/4
-                print("ahora tengo: ", text.game_time, " segundos")
+                        elif obj.rest_time():
+                            obj.add_sound = True
+                            text.game_time -= 1 / 2
+                            if obj.lost_soud:
+                                less_time.play(0)
+                                obj.lost_soud = False
 
+                        else:
+                            obj.add_sound = True
+                            obj.lost_soud = True
+
+        if obj.falling and obj.fall_sound:
+            die.play(0)
+            pg.time.wait(50)
+            obj.fall_sound = False
+            # die.set_volume(0)
         # Limpiar buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -208,18 +151,35 @@ def main():
             scr2.main_info(text.session_time)
             scr2.options()
 
+        elif death and not start and not win:
+            scr2.main_info(text.session_time)
+            scr2.options()
+
+        elif obj.pregenerated is True:
+            if obj.preg_counter == len(map1):
+                win = True
+                start = False
+                death = True
+                scr3.remaining_time = text.session_time
+
         if start:
-            eje.dibujar()
             obj.draw()
-            texto = text.get_time_text(clock)
+            if not pause:
+                texto = text.get_time_text(clock)
             text.dibujar(texto)
 
-        if not start and not death:
+            if text.game_time <= 0.1:
+                death = True
+                start = False
+
+        if not start and not death and not win:
             scr1.main_title()
             scr1.instructions()
             scr1.game_mode()
-        # glColor3f(0, 0, 0)
-        # drawText('hello world', ancho - 100, alto - 20, ancho, alto)
+
+        if not start and win:
+            scr3.main_info()
+            scr3.options()
 
         # camara
         glLoadIdentity()

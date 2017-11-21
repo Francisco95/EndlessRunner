@@ -24,6 +24,9 @@ class Interactions(Personaje, Stage):
         self.spinning = False  # esta rotando, permite bloquear otras acciones
         self.left = False
         self.right = False
+        self.fall_sound = True
+        self.add_sound = True
+        self.lost_soud = True
         self.speed = speed  # velocidad de desplazamiento
         self.speed_jump = speed_jump  # velocidad del salto
         self.height_j = 70  # altura del salto
@@ -56,8 +59,6 @@ class Interactions(Personaje, Stage):
         if speed is None:
             speed = self.speed_jump
         r = -self.pj_pos.y + speed * time + (self.gravity * time ** 2) / 2
-        # print("estoy actualizando posicion")
-        # print("antes, y=", self.pos.y, ", ahora y=", r)
         return r
 
     def max_height(self, speed):
@@ -85,7 +86,6 @@ class Interactions(Personaje, Stage):
         """
         next_time = self.time_jump[self.instant]
         if type_jump is "jump":
-            print("actualizo segun jump")
             speed_jump = self.speed_jump
 
         elif type_jump is "small_jump":
@@ -122,9 +122,6 @@ class Interactions(Personaje, Stage):
 
         xfloor, yfloor, zfloor = oct.set_displacement_pos().cartesianas()
         if abs(oct.pos.z - self.pos.z) < oct.lenz / 2 + 150:
-        # if -oct.lenz / 2 < oct.pos.z - self.pos.z < oct.lenz / 2:
-            # verificaremos que la posicion vertical este en el piso
-            # print("delta pos: ", abs(-yfloor - self.pos.y))
             if abs(-yfloor - self.pos.y) < 200:
                 aux_cond_pos = True
 
@@ -147,16 +144,12 @@ class Interactions(Personaje, Stage):
                 (self.right and not self.left) or (not self.right and self.left)]
 
     def jump(self):
-        # print("estoy en jump")
         if all(self.jump_conditions()):
-            print("salto")
-            print("instat = ", self.instant)
             self.upgrade_vertica_pos("jump")
             self.instant += 1
 
         if self.instant >= self.instants \
                 and not self.falling and not self.spinning:
-            print("termina el salto")
             self.instant = 1
             self.jumping = False
 
@@ -164,7 +157,6 @@ class Interactions(Personaje, Stage):
         oct = self.octagons[1]
         run = True
         if all(self.fall_condition(oct)):  # cumple todas las condiciones de caida
-            print("me caigo")
             self.upgrade_vertica_pos("fall")
             self.instant += 1
             self.falling = True  # esto permitira bloquear otras acciones
@@ -186,8 +178,6 @@ class Interactions(Personaje, Stage):
             ang = self.discrete_rotation()
 
         if all(self.spin_conditions()):
-            # print("modifico la rotacion segun Delta_ang: ", 4 * ang * 180 / np.pi)
-            # print("instant = ", self.instant)
             self.upgrade_vertica_pos("small_jump")
             Stage.modify_fi(self, ang)
             self.instant += 1
@@ -195,8 +185,6 @@ class Interactions(Personaje, Stage):
         if self.instant >= int(self.instants / 2) + 1 \
                 and not self.jumping and not self.falling:
             self.instant = 1
-            # Stage.modify_fi(self, 45)
-            # print("nuevo master fi = ", self.ang)
             self.spinning = False
             self.right = False
             self.left = False
@@ -211,9 +199,6 @@ class Interactions(Personaje, Stage):
 
         xfloor, yfloor, zfloor = oct.set_displacement_pos().cartesianas()
         if abs(oct.pos.z - self.pos.z) < oct.lenz / 2 + 150:
-            # if -oct.lenz / 2 < oct.pos.z - self.pos.z < oct.lenz / 2:
-            # verificaremos que la posicion vertical este en el piso
-            # print("delta pos: ", abs(-yfloor - self.pos.y))
             if abs(-yfloor - self.pos.y) < 210:
                 aux_cond_pos = True
 
@@ -223,9 +208,6 @@ class Interactions(Personaje, Stage):
     def add_time(self):
         oct = self.octagons[1]
         get_more_time = False
-        # print("add_time jumping: ", self.jumping)
-        # print("add_time spinning: ", self.spinning)
-        # print("add_time falling: ", self.falling)
         lower_type = self.get_type_lower_block(oct)
         if all(self.time_conditions(oct)) and lower_type == 3:
             get_more_time = True
@@ -253,7 +235,6 @@ class Interactions(Personaje, Stage):
         lower = -int(number) + 4
         if lower > 7:
             lower -= 8
-        # print(lower, " tipo=", octagon.tipos[lower])
         return octagon.tipos[lower]
 
     def mov_sceneario(self):
@@ -263,9 +244,7 @@ class Interactions(Personaje, Stage):
         delay = 120
         self.accel_time = (self.accel_time + 1 + delay) % delay
         if self.accel_time == delay - 1:
-            self.speed += 10  # aumenta la velocidad
-            # self.distance += 5  # en concordancia, aumenta la longitud del salto
-            # self.instants = self.get_number_of_instants()
+            self.speed += 5  # aumenta la velocidad
 
     def draw(self):
         Stage.dibujar(self)

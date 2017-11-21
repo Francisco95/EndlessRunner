@@ -24,12 +24,9 @@ class Octagon:
         o comodin (2)
         :return:
         """
-
         self.lista = glGenLists(1)
         glNewList(self.lista, GL_COMPILE)
-
         glEnable(GL_COLOR_MATERIAL)
-
         glBegin(GL_TRIANGLES)
 
         for i in range(8):
@@ -40,17 +37,13 @@ class Octagon:
                 glColor3f(1.0, 1.0, 1.0)
             elif self.tipos[i] == 3:  # amarillos, otrogan mas tiempo de vida
                 glColor3f(1.0, 1.0, 0.0)
-
             elif self.tipos[i] == 4:  # rojos, restan tiempo de vida
                 glColor3f(1.0, 0.0, 0.0)
-
             else: # lo demas es vacio
                 continue
-
             self.master_parallelepiped(i)
 
         glEnd()
-
         glEndList()
 
     def dibujar(self):

@@ -85,11 +85,17 @@ class Stage:
                offset
 
     def randon_types(self):
-
-        if not self.pregenerated:
+        """
+        genera un arreglo de los tipos de paralelepipedos a crear
+        :return:
+        """
+        if not self.pregenerated: # no hay pregenerado
             tipos = [int(i) for i in np.random.exponential(1, size=8)]
-        else:
-            tipos = map1[self.preg_counter]
+        else: # si hay pregenerado
+            if self.preg_counter < len(map1): #toma los tipos del mapa
+                tipos = map1[self.preg_counter] # aumenta el contador
+            else:
+                tipos = [0, 0, 0, 0, 0, 0, 0, 0] # despues agrega escena plana
             self.preg_counter += 1
 
         return tipos
