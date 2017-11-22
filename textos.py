@@ -1,5 +1,4 @@
-from EndlessRunner.CC3501Utils import *
-import pygame.locals as lcl
+from CC3501Utils import *
 import pygame
 from OpenGL.GL import *
 from OpenGL.GLUT import *

@@ -1,8 +1,8 @@
 import numpy as np
-from EndlessRunner.MasterOctagon import Octagon
-from EndlessRunner.CC3501Utils import Vector
+from MasterOctagon import Octagon
+from CC3501Utils import Vector
 from OpenGL.GL import *
-from EndlessRunner.map1 import map1
+from map1 import *
 
 
 class Stage:

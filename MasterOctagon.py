@@ -1,4 +1,4 @@
-from EndlessRunner.CC3501Utils import *
+from CC3501Utils import *
 import numpy as np
 
 

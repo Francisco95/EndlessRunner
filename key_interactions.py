@@ -1,7 +1,7 @@
 import pygame.locals as lcl
-from EndlessRunner.Stage import *
-from EndlessRunner.Interactions import Interactions
-from EndlessRunner.textos import Tiempo, InitScreen, DeathScreen, VictoryScree
+from Stage import *
+from Interactions import Interactions
+from textos import Tiempo, InitScreen, DeathScreen, VictoryScree
 import pygame as pg
 
 

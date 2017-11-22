@@ -1,9 +1,9 @@
-from EndlessRunner.initializers import *
-from EndlessRunner.Eje import *
+from initializers import *
+from Eje import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import os
-from EndlessRunner.key_interactions import *
+from key_interactions import *
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # centrar pantalla
 

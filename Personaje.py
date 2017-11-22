@@ -1,6 +1,5 @@
-from EndlessRunner.CC3501Utils import Vector, esfera
+from CC3501Utils import Vector, esfera
 from OpenGL.GL import *
-from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from PIL import Image as Image
 import numpy as np

@@ -1,8 +1,7 @@
-from EndlessRunner.CC3501Utils import Vector
-from OpenGL.GL import *
-from EndlessRunner.Stage import Stage
-from EndlessRunner.Personaje import Personaje
-from EndlessRunner.MasterOctagon import Octagon
+from CC3501Utils import Vector
+from Stage import Stage
+from Personaje import Personaje
+from MasterOctagon import Octagon
 import numpy as np
 
 
